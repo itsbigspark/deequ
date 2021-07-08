@@ -44,9 +44,9 @@ class VerificationSuiteTest extends WordSpec with Matchers with SparkContextSpec
       val df = getDfFull(sparkSession)
 
       val result = {
-        val checkToSucceed = Check(CheckLevel.Warning, "group-1")
+        val checkToSucceed = Check(CheckLevel.Error, "group-1")
           .isComplete("att1") // 1.0
-          .hasCompleteness("att1", _ == 2) // 1.0
+          .hasCompleteness("att1", _ == 1.0) // 1.0
 
         val analyzers = Size() :: // Analyzer that works on overall document
           Completeness("att2") ::
