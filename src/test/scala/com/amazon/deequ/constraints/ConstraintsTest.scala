@@ -29,6 +29,16 @@ import com.amazon.deequ.SparkContextSpec
 class ConstraintsTest extends WordSpec with Matchers with SparkContextSpec with FixtureSupport {
 
   "Completeness constraint" should {
+
+    "calculate metrics" in withSparkSession{sparkSession =>
+      val df = getDfMissing(sparkSession)
+      val constraint = Constraint.completenessConstraint(column="att1", assertion=_ == 0.5)
+      val constraintResult = calculate(constraint, df)
+      val metric = constraintResult.metric
+      val constraintSuccessStatus = constraintResult.status
+      assert(constraintResult.status == ConstraintStatus.Success)
+    }
+
     "assert on wrong completeness" in withSparkSession { sparkSession =>
       val df = getDfMissing(sparkSession)
       assert(calculate(Constraint.completenessConstraint("att1", _ == 0.5), df).status ==

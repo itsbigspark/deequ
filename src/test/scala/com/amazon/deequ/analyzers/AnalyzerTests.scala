@@ -32,6 +32,19 @@ import scala.util.{Failure, Success}
 class AnalyzerTests extends AnyWordSpec with Matchers with SparkContextSpec with FixtureSupport {
 
   "Size analyzer" should {
+
+    "compute some metrics for a deequ demo" in withSparkSession { sparkSession =>
+      val df = getDfMissing(sparkSession)
+
+      val analyzer = Size()
+      val analyzerResult = analyzer.calculate(df) // Analyzer result gives the metric
+
+      // Potentially confusing: the "Success" mentioned here is a scala thing to do with a try/catch, NOT a the status of a successful constraint/check.
+      assert(analyzerResult == DoubleMetric(Entity.Dataset, "Size", "*", Success(df.count())))
+
+    }
+
+
     "compute correct metrics" in withSparkSession { sparkSession =>
       val dfMissing = getDfMissing(sparkSession)
       val dfFull = getDfFull(sparkSession)

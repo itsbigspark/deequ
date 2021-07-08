@@ -42,19 +42,25 @@ class CheckTest extends AnyWordSpec with Matchers with SparkContextSpec with Fix
 
     "return the correct check status for completeness" in withSparkSession { sparkSession =>
 
+      def isOne(x: Double) = { x == 1.0 }
+
+      // one check, 2 constraints
       val check1 = Check(CheckLevel.Error, "group-1")
         .isComplete("att1") // 1.0
         .hasCompleteness("att1", _ == 1.0) // 1.0
 
+      // one check, one constraint
       val check2 = Check(CheckLevel.Error, "group-2-E")
         .hasCompleteness("att2", _ > 0.8) // 0.75
 
+      // one check, one constraint
       val check3 = Check(CheckLevel.Warning, "group-2-W")
         .hasCompleteness("att2", _ > 0.8) // 0.75
 
       val context = runChecks(getDfCompleteAndInCompleteColumns(sparkSession),
-        check1, check2, check3)
+        check1, check2, check3) // 3 checks, 5 constraints
 
+      // 2 metrics are calculated: unique metrics are defined by their name and scope. Here the same metric name is run on 2 different columns of the same dataframe.
       context.metricMap.foreach { println }
 
       assertEvaluatesTo(check1, context, CheckStatus.Success)
